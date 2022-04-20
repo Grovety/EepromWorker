@@ -1,6 +1,34 @@
+/**
+ ******************************************************************************
+ * @file    networkparamseditor.cpp
+ * @brief   Implementation of class NetworkParamsEditor
+ *
+ * @section License
+ * Copyright (c)
+ *
+ * @author
+ * @date    April-2022
+ *
+ ******************************************************************************
+ **/
+
+/******************************************************************************
+ * Includes
+ *****************************************************************************/
+#include <QByteArray>
+
 #include "networkparamseditor.h"
 #include "ui_networkparamseditor.h"
 
+
+/******************************************************************************
+ * Functions
+ *****************************************************************************/
+
+/**
+ * @brief NetworkParamsEditor default constructor
+ * @param parent
+ */
 NetworkParamsEditor::NetworkParamsEditor(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::NetworkParamsEditor)
@@ -8,13 +36,17 @@ NetworkParamsEditor::NetworkParamsEditor(QWidget *parent) :
     ui->setupUi(this);
 }
 
+
+/**
+ * @brief NetworkParamsEditor default destructor
+ */
 NetworkParamsEditor::~NetworkParamsEditor()
 {
     delete ui;
 }
 
-/*************************************************************************************
- ************************************************************************************
+/******************************************************************************
+ ******************************************************************************
  * Base Address: 0x1ff000
  *
  * +0x000  (0x06 bytes) - MAC Address
@@ -27,8 +59,8 @@ NetworkParamsEditor::~NetworkParamsEditor()
  * +0x080 (0x60 bytes) - mDNS Ping Packet, included Resolved Device Name
  * +0x120 (0x60 bytes) - mDNS Answer Packet, also included Resolved Device Name
  *
- ************************************************************************************
- ***********************************************************************************/
+ ******************************************************************************
+ *****************************************************************************/
 
 void NetworkParamsEditor::SetParameters()
 {
