@@ -13,16 +13,19 @@ SOURCES += \
     Dump/chunks.cpp \
     Dump/commands.cpp \
     Dump/qhexedit.cpp \
-    dialog.cpp
+    dialog.cpp \
+    networkparamseditor.cpp
 
 HEADERS += \
     Dump/chunks.h \
     Dump/commands.h \
     Dump/qhexedit.h \
-    dialog.h
+    dialog.h \
+    networkparamseditor.h
 
 FORMS += \
-    dialog.ui
+    dialog.ui \
+    networkparamseditor.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

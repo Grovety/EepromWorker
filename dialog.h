@@ -27,6 +27,8 @@ private slots:
 
     void on_m_btnEraseEeprom_clicked();
 
+    void on_m_btnEditNetworkSettings_clicked();
+
 private:
     Ui::Dialog *ui;
 };

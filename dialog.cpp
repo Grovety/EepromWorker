@@ -2,6 +2,7 @@
 #include "ui_dialog.h"
 #include <QMessageBox>
 #include <QDebug>
+#include "networkparamseditor.h"
 
 bool Dialog::ReadEeprom(uint32_t addr, int size, QByteArray &data)
 {
@@ -70,6 +71,8 @@ bool Dialog::WriteEeprom(uint32_t addr, int size, const char *data)
         }
         writeeEepromStruct params;
         params.addr = addr;
+        params.pwd1 = 0x45;
+        params.pwd2 = 0x5750;
         memcpy (params.data,data+offset,lenForCopy);
 
         socket.writeDatagram((const char*)(&params),lenForCopy+6,hostAddr,0xeee2);
@@ -95,13 +98,15 @@ bool Dialog::EraseEeprom(uint32_t addr, int size)
     {
         writeeEepromStruct params;
         params.addr = addr;
+        params.pwd1 = 0x45;
+        params.pwd2 = 0x4350;
 
         socket.writeDatagram((const char*)(&params),6,hostAddr,0xeeee);
 
         addr += 0x8000;
         offset += 0x8000;
         size -= 0x8000;
-        QThread::msleep(10);
+        QThread::msleep(100);
     }
     return true;
 
@@ -172,4 +177,21 @@ void Dialog::on_m_btnEraseEeprom_clicked()
         QMessageBox::critical(this,"Error","Cannot Write Eeprom");
     }
 
+}
+
+void Dialog::on_m_btnEditNetworkSettings_clicked()
+{
+    NetworkParamsEditor params (this);
+    if (!ReadEeprom(0x1ff000,0x100,params.m_eepromImage))
+    {
+        QMessageBox::critical(this,"Error","Cannot read poarameters from EEPROM, check connection");
+        return;
+    }
+    params.SetParameters();
+    if (params.exec()==QDialog::Accepted)
+    {
+        ui->m_eepromAddr->setText("0x1ff000");
+        ui->m_eepromLen->setText("0x100");
+        ui->m_eepromDump->setData(params.m_eepromImage);
+    }
 }
