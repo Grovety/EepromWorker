@@ -25,7 +25,6 @@ NetworkParamsEditor::~NetworkParamsEditor()
  * +0x040 (0x40 bytes) - DHCP Suffix, included Network Name.
  *                            First byte is an actual length
  * +0x080 (0x60 bytes) - mDNS Ping Packet, included Resolved Device Name
- * +0x120 (0x60 bytes) - mDNS Answer Packet, also included Resolved Device Name
  *
  ************************************************************************************
  ***********************************************************************************/
@@ -112,7 +111,7 @@ void NetworkParamsEditor::on_buttonBox_accepted()
     pData [0x43 + lineSize + 3] = 0x00;
 
     static const uint8_t mDNSBasis [] =
-         {0x00,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00};
+         {/*0x00,*/0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00};
 
     memcpy (pData + 0x80,mDNSBasis,sizeof(mDNSBasis));
     int dest = 0x80 + sizeof (mDNSBasis);
@@ -131,4 +130,15 @@ void NetworkParamsEditor::on_buttonBox_accepted()
     pData [dest++] = 0x01;
     pData [dest++] = 0x00;
     pData [dest++] = 0x01;
+
+/*    static const uint8_t mDNSanswerBasis1[] =
+    {
+        0x00,0x00,0x84,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x00
+    }
+
+    static const uint8_t mDNSanswerBasis2[] =
+    {
+        0x00,0x00,0x01,0x80,0x01,0x00,0x00,0x00,0x78,0x00,0x04
+    }
+*/
 }
