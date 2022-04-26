@@ -57,6 +57,46 @@ void NetworkParamsEditor::SetParameters()
         memcpy (txt,pData+0x43,pData [0x42]);
         ui->m_DHCPname->setText(txt);
      }
+     // Fill mDNS Name only if it is really present.
+     static const uint8_t mdnsBase[] = {0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x00,0x00,0x00,0x00};
+     static const int endOfData = 0x80 + 0x60;
+     if (memcmp(pData+0x80,mdnsBase,sizeof(mdnsBase))==0)
+     {
+         char mDnsName [0x100];
+         memset (mDnsName,0,sizeof(mDnsName));
+         int posInmDnsName = 0;
+         int ptr = 0x8b;
+         bool bAllIsGood = true;
+          while (true)
+          {
+             int curLen = pData [ptr];
+             if (ptr + curLen > endOfData)
+             {
+                 bAllIsGood = false;
+                 break;
+             }
+             ptr += 1;
+             while (curLen-- > 0)
+             {
+                 if ((pData[ptr] < ' ')||(pData[ptr] == 0xff))
+                 {
+                     bAllIsGood = false;
+                     break;
+                 } else
+                 {
+                     mDnsName [posInmDnsName++] = pData[ptr++];
+                 }
+             }
+             if (pData[ptr] == 0)
+             {
+                 break;
+             } else
+             {
+                 mDnsName [posInmDnsName++] ='.';
+             }
+          }
+          ui->m_mDNSName->setText(mDnsName);
+     }
 
 
 }

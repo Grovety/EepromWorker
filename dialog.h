@@ -29,6 +29,8 @@ private slots:
 
     void on_m_btnEditNetworkSettings_clicked();
 
+    void on_m_btnBuildImage_clicked();
+
 private:
     Ui::Dialog *ui;
 };

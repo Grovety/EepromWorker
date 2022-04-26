@@ -3,6 +3,7 @@
 #include <QMessageBox>
 #include <QDebug>
 #include "networkparamseditor.h"
+#include <QFileDialog>
 
 bool Dialog::ReadEeprom(uint32_t addr, int size, QByteArray &data)
 {
@@ -184,8 +185,9 @@ void Dialog::on_m_btnEditNetworkSettings_clicked()
     NetworkParamsEditor params (this);
     if (!ReadEeprom(0x1ff000,0x100,params.m_eepromImage))
     {
-        QMessageBox::critical(this,"Error","Cannot read poarameters from EEPROM, check connection");
-        return;
+        QMessageBox::warning(this,"Error","Cannot read poarameters from EEPROM, default is loaded");
+        params.m_eepromImage.resize(0x100);
+        memset ((void*)params.m_eepromImage.constData(),0xff,params.m_eepromImage.size());
     }
     params.SetParameters();
     if (params.exec()==QDialog::Accepted)
@@ -194,4 +196,58 @@ void Dialog::on_m_btnEditNetworkSettings_clicked()
         ui->m_eepromLen->setText("0x100");
         ui->m_eepromDump->setData(params.m_eepromImage);
     }
+}
+
+void Dialog::on_m_btnBuildImage_clicked()
+{
+    // Ask for MAster Image
+    QByteArray eeprom = ui->m_eepromDump->data();
+    if (eeprom.size() < ui->m_eepromLen->text().toInt(nullptr,16))
+    {
+        QMessageBox::critical(this,"Error","There is no actual EEPROM Image!");
+        return;
+    }
+    const char* data = eeprom.data();
+
+
+    QString str = QFileDialog::getOpenFileName(this, "Please, select Master Image", "", "*.bit");
+    if (str.isEmpty())
+    {
+        return;
+    }
+    QByteArray ar;
+
+    QFile masterFile (str);
+    if (!masterFile.open(QIODevice::ReadOnly))
+    {
+        QMessageBox::critical(this,"Error","Cannot open Master File!");
+        return;
+    }
+    int64_t dataSize = ui->m_eepromAddr->text().toUInt(nullptr,16) + ui->m_eepromLen->text().toUInt(nullptr,16);
+
+    dataSize = qMax (dataSize,masterFile.size());
+
+    ar.resize(dataSize);
+    memset (ar.data(),0xff,ar.size());
+
+    masterFile.read((char*)ar.data(),masterFile.size());
+
+    masterFile.close();
+
+    memcpy (ar.data()+ui->m_eepromAddr->text().toUInt(nullptr,16),data,ui->m_eepromLen->text().toUInt(nullptr,16));
+
+    str = QFileDialog::getSaveFileName(this, "Please, select Target Image", "", "*.bit");
+    if (str.isEmpty())
+    {
+        return;
+    }
+
+    QFile targetFile (str);
+    if (!targetFile.open(QIODevice::WriteOnly))
+    {
+        QMessageBox::critical(this,"Error","Cannot create Target File!");
+        return;
+    }
+    targetFile.write(ar.constData(),ar.size());
+    targetFile.close();
 }
